@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_script import Manager
 
 '''
 A Flask application must create an application instance.
@@ -6,6 +7,8 @@ Web server passes all requests it receives from clients to this object for
 handling, using WSGI protocol.
 '''
 app = Flask(__name__)
+
+manager = Manager(app)
 
 #The association b/w a URL and the function that handles it is called a route.
 #Functions like 'index()' are called view functions.
@@ -22,4 +25,4 @@ def user(name):
     return '<h1>Hello, %s!</h1>' % name
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    manager.run()
