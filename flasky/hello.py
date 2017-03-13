@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_script import Manager
 
 '''
@@ -14,7 +14,7 @@ manager = Manager(app)
 #Functions like 'index()' are called view functions.
 @app.route('/')
 def index():
-    return '<h1>Hello World!</h1>'
+    return render_template('index.html')
 
 #The portion enclosed in angle brackets is the dynamic part.
 #Dynamic components in routes are strings by default.
@@ -22,7 +22,7 @@ def index():
 #argument.
 @app.route('/user/<name>')
 def user(name):
-    return '<h1>Hello, %s!</h1>' % name
+    return render_template('user.html', nameholder=name)
 
 if __name__ == '__main__':
     manager.run()
