@@ -1,4 +1,4 @@
-from flask import Flask, render_template, session, redirect, url_for
+from flask import Flask, render_template, session, redirect, url_for, flash
 from flask_script import Manager
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
@@ -43,6 +43,9 @@ def index():
         #storing them in the user session, private storage that is available to
         #each connected client. The user session is one of the variables 
         #associated with the request context and is called 'session'.
+        old_name = session.get('name')
+        if old_name is not None and old_name != form.name.data:
+            flash('Looks like you have changed your name!')
         session['name'] = form.name.data
         #Generate the HTTP redirect response. Obtaining the redirected URL 
         #using url_for() is encourged.
