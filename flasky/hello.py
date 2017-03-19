@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, session, redirect, url_for
 from flask_script import Manager
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
@@ -26,16 +26,31 @@ bootstrap = Bootstrap(app)
 #for GET and POST requests.
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    name = None
     form = NameForm()
+
+    #Browsers repeat the last request  they have sent when they are asked to 
+    #refresh the page. When the last request sent is a POST request with form
+    #data, a refresh would cause a duplicate form submission, which in almost
+    #all cases is not the desired action.
+
+    #Using Post/Redirect/Get pattern
 
     #validate_on_submit() returns True if the form was submitted and the data 
     #has been accepted by all the field validators.
     if form.validate_on_submit():
-        name = form.name.data
-        #clear the form data. Otherwise, it will be rendered on the page.
-        form.name.data = ''
-    return render_template('index.html', form=form, name=name)
+
+        #Application can remember things from one request to the next by 
+        #storing them in the user session, private storage that is available to
+        #each connected client. The user session is one of the variables 
+        #associated with the request context and is called 'session'.
+        session['name'] = form.name.data
+        #Generate the HTTP redirect response. Obtaining the redirected URL 
+        #using url_for() is encourged.
+        return redirect(url_for('index'))
+
+    #using get() to request a dictionary key avoids an exception for keys that 
+    #aren't found, it will return a default value of None for a missing key.
+    return render_template('index.html', form=form, name=session.get('name'))
 
 #The portion enclosed in angle brackets is the dynamic part.
 #Dynamic components in routes are strings by default.
