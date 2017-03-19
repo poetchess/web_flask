@@ -1,13 +1,14 @@
+import os
 from flask import Flask, render_template, session, redirect, url_for, flash
 from flask_script import Manager
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import Required
+from flask_sqlalchemy import SQLAlchemy
 
-class NameForm(FlaskForm):
-    name = StringField('What is your name?', validators=[Required()])
-    submit = SubmitField('Submit')
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 '''
 A Flask application must create an application instance.
 Web server passes all requests it receives from clients to this object for 
@@ -15,10 +16,43 @@ handling, using WSGI protocol.
 '''
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'hard to guess string, really?'
+app.config['SQLALCHEMY_DATABASE_URI'] = \
+    'sqlite:///' + os.path.join(basedir, 'data.sqlite')
+app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 
+db = SQLAlchemy(app)
 manager = Manager(app)
 bootstrap = Bootstrap(app)
 
+class NameForm(FlaskForm):
+    name = StringField('What is your name?', validators=[Required()])
+    submit = SubmitField('Submit')
+
+class Role(db.Model):
+    __tablename__ = 'roles'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), unique=True)
+    #This attribute represents the object-oriented view of the relationship.
+    #Given an instance of class Role, the 'users' attribute will return a list 
+    #of users associated with that role.
+    #The first argument indicates what model is on the other side of the 
+    #relationship. The second one defines the reverse direction of the 
+    #relationship by adding a 'role' attribute to the 'User' model. This 
+    #attribute can be used instead of 'role_id' to access the 'Role' model as 
+    #an object instead of as a foreign key.
+    users = db.relationship('User', backref='role')
+
+    def __repr__(self):
+        return '<Role %r>' % self.name
+
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), unique=True, index=True)
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    
+    def __repr__(self):
+        return '<User %r>' % self.username
 #The association b/w a URL and the function that handles it is called a route.
 #Functions like 'index()' are called view functions.
 
