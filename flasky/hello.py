@@ -32,15 +32,20 @@ class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
-    #This attribute represents the object-oriented view of the relationship.
-    #Given an instance of class Role, the 'users' attribute will return a list 
-    #of users associated with that role.
-    #The first argument indicates what model is on the other side of the 
-    #relationship. The second one defines the reverse direction of the 
-    #relationship by adding a 'role' attribute to the 'User' model. This 
-    #attribute can be used instead of 'role_id' to access the 'Role' model as 
-    #an object instead of as a foreign key.
-    users = db.relationship('User', backref='role')
+    '''
+        The users attribute added to model Role represents the object-oriented 
+        view of the relationship. Given an instance of class Role, the users 
+        attribute will return the list of users associated with that role. The 
+        first argument to db.relationship() indicates what model is on the 
+        other side of the relationship. This model can be provided as a string 
+        if the class is not yet defined.
+
+        The backref argument to db.relationship() defines the reverse direction
+        of the relationship by adding a role attribute to the User model. This 
+        attribute can be used instead of role_id to access the Role model as an
+        object instead of as a foreign key.
+    '''
+    users = db.relationship('User', backref='role', lazy='dynamic')
 
     def __repr__(self):
         return '<Role %r>' % self.name
@@ -106,4 +111,5 @@ def internal_server_error(e):
     return render_template('500.html'), 500
 
 if __name__ == '__main__':
+    db.create_all()
     manager.run()
