@@ -82,17 +82,23 @@ def index():
         #storing them in the user session, private storage that is available to
         #each connected client. The user session is one of the variables 
         #associated with the request context and is called 'session'.
-        old_name = session.get('name')
-        if old_name is not None and old_name != form.name.data:
-            flash('Looks like you have changed your name!')
+        user = User.query.filter_by(username=form.name.data).first()
+        if user is None:
+            user = User(username = form.name.data)
+            db.session.add(user)
+            session['known'] = False
+        else:
+            session['known'] = True
+
         session['name'] = form.name.data
+        form.name.data = ''
         #Generate the HTTP redirect response. Obtaining the redirected URL 
         #using url_for() is encourged.
         return redirect(url_for('index'))
 
     #using get() to request a dictionary key avoids an exception for keys that 
     #aren't found, it will return a default value of None for a missing key.
-    return render_template('index.html', form=form, name=session.get('name'))
+    return render_template('index.html', form=form, name=session.get('name'), known=session.get('known', False))
 
 #The portion enclosed in angle brackets is the dynamic part.
 #Dynamic components in routes are strings by default.
@@ -111,5 +117,5 @@ def internal_server_error(e):
     return render_template('500.html'), 500
 
 if __name__ == '__main__':
-    db.create_all()
+    #db.create_all()
     manager.run()
