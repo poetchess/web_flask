@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, session, redirect, url_for, flash
-from flask_script import Manager
+from flask_script import Manager, Shell
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
@@ -58,6 +58,18 @@ class User(db.Model):
     
     def __repr__(self):
         return '<User %r>' % self.username
+
+'''
+    Having to import the database instance and the models each time a shell 
+    session is started is tedious work. To avoid having to constantly repeat 
+    these imports, the Flask-Script's shell command can be configured to 
+    automatically import certain objects.
+'''
+def make_shell_context():
+    return dict(app=app, db=db, User=User, Role=Role)
+
+manager.add_command("shell", Shell(make_context=make_shell_context))
+
 #The association b/w a URL and the function that handles it is called a route.
 #Functions like 'index()' are called view functions.
 
