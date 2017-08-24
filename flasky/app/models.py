@@ -5,9 +5,11 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from . import db
 from . import login_manager
 
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
 
 class Role(db.Model):
     __tablename__ = 'roles'
@@ -56,5 +58,6 @@ class User(UserMixin, db.Model):
         self.confirmed = True
         db.session.add(self)
         return True
+
     def __repr__(self):
         return '<User %r>' % self.username

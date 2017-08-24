@@ -34,7 +34,7 @@
             <!-- current_user is defined in flask_login, is available to
                  view functions and templates -->
                 {% if current_user.is_authenticated %}
-                <li><a href="{{ url_for('auth.logout') }}">Sign Out</a>></li>
+                <li><a href="{{ url_for('auth.logout') }}">Sign Out</a></li>
                 {% else %}
                 <li><a href="{{ url_for('auth.logout') }}">Sign In</a></li>
                 {% endif %}
