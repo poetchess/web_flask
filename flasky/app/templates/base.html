@@ -35,8 +35,9 @@
                  view functions and templates -->
                 {% if current_user.is_authenticated %}
                 <li><a href="{{ url_for('auth.logout') }}">Sign Out</a></li>
+                <li><a href="{{ url_for('auth.change_pwd') }}">Change Password</a></li>
                 {% else %}
-                <li><a href="{{ url_for('auth.logout') }}">Sign In</a></li>
+                <li><a href="{{ url_for('auth.login') }}">Sign In</a></li>
                 {% endif %}
             </ul>
         </div>
