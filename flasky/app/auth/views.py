@@ -1,7 +1,7 @@
 from flask import render_template, redirect, request, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from . import auth
-from .forms import LoginForm, RegistrationForm, ChangePwdForm
+from .forms import LoginForm, RegistrationForm, ChangePwdForm, ForgetPwdForm, ResetPwdForm
 from .. import db
 from ..models import User
 from ..email import send_email
@@ -108,3 +108,35 @@ def change_pwd():
         flash('Old password is not correct.')
 
     return render_template('auth/change_pwd.html', form=form)
+
+
+@auth.route('/forget_pwd', methods=['GET', 'POST'])
+def forget_pwd():
+    form = ForgetPwdForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user is None:
+            flash('User does not exist.')
+        else:
+            token = User.generate_reset_pwd_token(form.email.data)
+            send_email(user.email, 'Reset Your Password', 'auth/email/reset_pwd', user=user, token=token)
+            flash('An email has been sent to you to reset the password.')
+            return redirect(url_for('main.index'))
+    return render_template('auth/forget_pwd.html', form=form)
+
+
+@auth.route('/reset_pwd/<token>', methods=['GET', 'POST'])
+def reset_pwd(token):
+    form = ResetPwdForm()
+    if form.validate_on_submit():
+        data = User.get_reset_pwd_token(token)
+        try:
+            email = data.get('confirm_email')
+            user = User.query.filter_by(email=email).first()
+            user.password = form.new_pwd.data
+            db.session.add(user)
+            flash('Successfully reset the password, please login with new password.')
+        except:
+            flash('Failed to reset password.')
+        return redirect(url_for('main.index'))
+    return render_template('auth/reset_pwd.html', form=form)

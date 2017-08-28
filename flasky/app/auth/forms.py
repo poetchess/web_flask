@@ -60,3 +60,15 @@ class ChangePwdForm(FlaskForm):
                                                         EqualTo('new_pwd2', message='Passwords must match.')])
     new_pwd2 = PasswordField('Confirm Password', validators=[DataRequired()])
     submit = SubmitField('Change Password')
+
+
+class ForgetPwdForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Length(1, 64), Email()])
+    submit = SubmitField('Next')
+
+
+class ResetPwdForm(FlaskForm):
+    new_pwd = PasswordField('New Password', validators=[DataRequired(),
+                                                        EqualTo('new_pwd2', message='Passwords must match.')])
+    new_pwd2 = PasswordField('Confirm Password', validators=[DataRequired()])
+    submit = SubmitField('Reset Password')

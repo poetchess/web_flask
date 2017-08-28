@@ -59,5 +59,19 @@ class User(UserMixin, db.Model):
         db.session.add(self)
         return True
 
+    @staticmethod
+    def generate_reset_pwd_token(email, expiration=300):
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'confirm_email': email})
+
+    @staticmethod
+    def get_reset_pwd_token(token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except:
+            return None
+        return data
+
     def __repr__(self):
         return '<User %r>' % self.username
